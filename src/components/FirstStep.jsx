@@ -1,16 +1,33 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+//animations
+import { motion } from 'framer-motion';
 
-export const FirstStep = (props) => {
-  const { register, handleSubmit, errors } = useForm();
+export const FirstStep = ({ user, updateUser }) => {
+  const { register, handleSubmit, errors } = useForm({
+    defaultValues: {
+      first_name: user.first_name,
+      last_name: user.last_name,
+    },
+  });
+  const navigate = useNavigate();
+
   const onSubmit = (data) => {
     console.log(data);
+    updateUser(data);
+    navigate('/second');
   };
 
   return (
     <Form className='input-form' onSubmit={handleSubmit(onSubmit)}>
-      <div className='col-md-6 offset-md-3'>
+      <motion.div
+        className='col-md-6 offset-md-3'
+        initial={{ x: '-100vw' }}
+        animate={{ x: 0 }}
+        transition={{ delay: 0.5 }}
+      >
         <Form.Group controlId='first_name' className='mt-1'>
           <Form.Label>First Name</Form.Label>
           <Form.Control
@@ -53,7 +70,7 @@ export const FirstStep = (props) => {
         <Button variant='primary' type='submit' className='mt-3'>
           Go to next page...
         </Button>
-      </div>
+      </motion.div>
     </Form>
   );
 };

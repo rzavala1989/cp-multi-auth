@@ -1,15 +1,31 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
-const SecondStep = (props) => {
-  const { register, handleSubmit, errors } = useForm();
+const SecondStep = ({ user, updateUser }) => {
+  const { register, handleSubmit, errors } = useForm({
+    defaultValues: {
+      user_email: user.user_email,
+      user_password: user.user_password,
+    },
+  });
+  const navigate = useNavigate();
+
   const onSubmit = (data) => {
     console.log(data);
+    updateUser(data);
+    navigate('/third');
   };
   return (
     <Form className='input-form' onSubmit={handleSubmit(onSubmit)}>
-      <div className='col-md-6 offset-md-3'>
+      <motion.div
+        className='col-md-6 offset-md-3'
+        initial={{ x: '-100vw' }}
+        animate={{ x: 0 }}
+        transition={{ delay: 0.5 }}
+      >
         <Form.Group controlId='user_email' className='mt-1'>
           <Form.Label>Email Address</Form.Label>
           <Form.Control
@@ -53,7 +69,7 @@ const SecondStep = (props) => {
         <Button variant='primary' type='submit' className='mt-3'>
           Go to last page...
         </Button>
-      </div>
+      </motion.div>
     </Form>
   );
 };
