@@ -3,11 +3,12 @@ import { Form, Button } from 'react-bootstrap';
 // import csc from 'country-state-city';
 import { Country, State, City } from 'country-state-city';
 import { motion } from 'framer-motion';
-
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BASE_API_URL } from '../utils/constants';
 
-const ThirdStep = () => {
+const ThirdStep = (props) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -17,6 +18,8 @@ const ThirdStep = () => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
 
+  //bring in navigate to redirect after adding user
+  const navigate = useNavigate();
   //populate our dropdowns
   //countries...
   useEffect(() => {
@@ -95,8 +98,43 @@ const ThirdStep = () => {
     getCities();
   }, [selectedState]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const { user } = props;
+      const updatedData = {
+        country: countries.find(
+          (country) => country.isoCode === selectedCountry
+        )?.name,
+        state: states.find((state) => state.isoCode === selectedState)?.name,
+        city: selectedCity,
+      };
+
+      //POST REQUEST TO OUR DB
+      await axios.post(`${BASE_API_URL}/register`, {
+        ...user,
+        ...updatedData,
+      });
+      Swal.fire(
+        'Thank you!',
+        'You have successfully registered',
+        'success'
+      ).then((result) => {
+        if (result.isConfirmed || result.isDismissed) {
+          props.resetUser();
+          navigate('/');
+        }
+      });
+    } catch (e) {
+      if (e.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops, something went wrong!',
+          text: e.response.data,
+        });
+      }
+      console.log(e);
+    }
   };
 
   return (
